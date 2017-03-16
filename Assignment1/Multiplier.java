@@ -1,108 +1,90 @@
 public class Multiplier {
         public static void main ( String [] args) {
 
-		// Generate a matrix with a random 
-		// number between 1 and 100
-		int n = Integer.parseInt(args[0]); 
-               	double r;
-		int r_int;
-		
-		System.out.println("Matrix A: ");
-		int [][] A = new int[n][n];
-		for (int i=0; i<n; i++) {
-			for (int j=0; j<n; j++) {
-				r = Math.random()*100 +1;
-				r_int = (int)r;
-				A[i][j] = r_int;
-				System.out.print(r_int + " ");
-			}
-			System.out.println();
-		}
- 		
-		System.out.println();
-		System.out.println("Matrix B: ");
-		int [][] B = new int[n][n];
-		for (int i=0; i<n; i++) {
-			for (int j=0; j<n; j++) {
-				r = Math.random()*100 +1;
-				r_int = (int)r;
-				B[i][j] = r_int;
-				System.out.print(r_int + " ");
-			}
-			System.out.println();
-		}		
-		System.out.println();
-		
-		//Generate new matrix C
-		int [][] C = new int[n][n];
-		MatrixMultiply[][] thrd = new MatrixMultiply[n][n];		
-	
-		// Start time
-		long start_time = System.nanoTime();
-		
+		// n - dimension of matrices
+                int n = Integer.parseInt(args[0]);
+		// not - nr of threads
+		int not = Integer.parseInt(args[1]);
+		// nor - nr of rows in each thread
+		int nor = n/not;
+                double r;
+                int r_int;
 
-		for (int i=0; i<n; i++) {
-			for (int j=0; j<n; j++) {
-				thrd[i][j] = new MatrixMultiply(A,B,C,i,j,n);
-				thrd[i][j].start();
-			}
-		}		
+                if (n%not != 0) {
+                        System.out.println("Current number of threads is impossible");
+                        System.exit(-1);
+                }
 
-		for (int i=0; i<n; i++) {
-			for (int j=0; j<n; j++) {
-				try {
-					thrd[i][j].join();
-				}
-				catch(InterruptedException e) {}
-			}
-		}
+		// Generate two random matrices, A and B,
+		// with numbers between 1 and 100
+                System.out.println("Matrix A: ");
+                int [][] A = new int[n][n];
+                for (int i=0; i<n; i++) {
+                        for (int j=0; j<n; j++) {
+                                r = Math.random()*100 +1;
+                                r_int = (int)r;
+                                A[i][j] = r_int;
+                        //        System.out.print(r_int + " ");
+                        }
+                        //System.out.println();
+                }
+
+                System.out.println();
+                System.out.println("Matrix B: ");
+                int [][] B = new int[n][n];
+                for (int i=0; i<n; i++) {
+                        for (int j=0; j<n; j++) {
+                                r = Math.random()*100 +1;
+                                r_int = (int)r;
+                                B[i][j] = r_int;
+                        //        System.out.print(r_int + " ");
+                        }
+                        //System.out.println();
+                }
+                System.out.println();
+
+                //Generate new matrix C
+                int [][] C = new int[n][n];
+                MultiplierThreads[] thread = new MultiplierThreads[not];
+
+                // Start time
+                long start_time = System.nanoTime();
 
 
-/*
-		// Do matrix multiplication
-		C = matrixMultiply(A,A);
+                for (int i=0; i<not; i++) {
+                        thread[i] = new MultiplierThreads(A,B,C,i,nor,n);
+                        thread[i].start();
+                }
+
+                for (int i=0; i<not; i++) {
+                        try {
+                                thread[i].join();
+                        }
+                        catch(InterruptedException e) {}
+                }
 
 		int sum = 0;
 		for (int i=0; i<n; i++) {
 			sum += C[i][i];
 		}
-*/
-	
-		// Time used
-		long used_time = System.nanoTime() - start_time;
-		
 
-		//System.out.println("The sum of the diagional is: " + sum);
+                // Time used
+                long used_time = System.nanoTime() - start_time;
 
-		System.out.println();
-		System.out.println("Elapsed time is: " + used_time + " nanoseconds");
-		System.out.println();
-		System.out.println("Results: ");
 
-		for (int i=0; i<n; i++) {
-			for (int j=0; j<n; j++) {
-				System.out.print(C[i][j] + " ");
-			}
-			System.out.println();
-		}	
+                //System.out.println("The sum of the diagional is: " + sum);
+
+                System.out.println();
+                System.out.println("Elapsed time is: " + (float)used_time/1000000000 + " seconds");
+                System.out.println();
+                System.out.println("Results: ");
+
+                //for (int i=0; i<n; i++) {
+                  //      for (int j=0; j<n; j++) {
+                    //            System.out.print(C[i][j] + " ");
+                      //  }
+                       // System.out.println();
+                //}
         }
 
-
-/*
-
-	public static int[][] matrixMultiply( int [][] A, int [][] B ) {
-		int n = A.length;
-		int [][] C = new int[n][n];
-		for (int i=0; i<n; i++) {
-			for (int j=0; j<n; j++) {
-				for (int k=0; k<n; k++) {
-					C[i][j] += A[i][k]*B[k][j];
-				}
-			}
-		} 
-		
-		return C;
-	} 
-*/
 }
-
